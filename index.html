@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הזמנת שולחן | Yasou Taverna</title>
+<link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico"> 
+<link rel="stylesheet" href="css/booking.css">
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<header class="hero">
+  <img src="../assets/images/logo.png" alt="YASOU" class="hero-logo" onerror="this.style.display='none'">
+  <p class="hero-subtitle">הזמנת מקום מראש</p>
+</header>
+
+<main class="wrap">
+  <section class="card" id="stepForm">
+    <h1>הזמנת שולחן</h1>
+    <p class="muted">מלאו פרטים ובחרו שעה זמינה.</p>
+
+    <div class="row">
+      <div class="field"><label>שם מלא</label><input id="customerName" autocomplete="name" placeholder="לדוגמה: יוסי כהן"></div>
+      <div class="field"><label>טלפון</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="0501234567"></div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>תאריך</label><input id="date" type="date"></div>
+      <div class="field"><label>סועדים</label>
+        <select id="guests">
+          <option value="2" selected>2</option><option value="1">1</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>בחרו שעה</label>
+        <select id="time">
+          <option value="">בחרו שעה</option>
+          <option value="20:00">20:00</option>
+          <option value="20:05">20:05</option>
+          <option value="20:10">20:10</option>
+          <option value="20:30">20:30</option>
+          <option value="20:35">20:35</option>
+          <option value="21:00">21:00</option>
+          <option value="21:05">21:05</option>
+          <option value="21:10">21:10</option>
+          <option value="21:15">21:15</option>
+        </select>
+      </div>
+      <div class="field"><label>סוג הזמנה</label>
+        <select id="reservationType"><option value="private">הזמנה פרטית</option><option value="group">הזמנה כקבוצה</option></select>
+      </div>
+    </div>
+
+    <div class="legal">בשליחת פיקדון, הלקוח מאשר כי טברנה יאסו ברודוס רשאית לחייב את הפיקדון במלואו במקרה של אי-הגעה, איחור מעל רבע שעה, ביטול או שינוי הזמנה.</div>
+    <label class="agree"><input type="checkbox" id="agree">אני מאשר/ת את תנאי ההזמנה והפיקדון</label>
+    <button id="continueBtn" class="btn primary">המשך לתשלום פיקדון</button>
+    <div class="error" id="errorBox"></div>
+  </section>
+
+  <section class="card hidden" id="stepPayment">
+    <h2>כמעט סיימנו</h2>
+    <div class="summary" id="summaryBox"></div>
+    <a class="btn bit" href="https://www.bitpay.co.il/app/me/672C703C-84B6-5622-19CF-CF25BD06FA6AB39E" target="_blank" rel="noopener">מעבר לתשלום פיקדון ב-Bit</a>
+    <p class="hint">לאחר התשלום בביט, חזור/חזרי לכאן והעלו צילום ברור של קבלת התשלום.</p>
+    <div class="upload-box">
+      <label for="receiptFile" class="upload-label"><span class="upload-icon">☁️</span><strong>העלאת קבלת תשלום</strong><small>קובץ תמונה בלבד: JPG / PNG</small></label>
+      <input id="receiptFile" type="file" accept="image/png,image/jpeg,image/jpg" hidden>
+      <div class="receipt-preview hidden" id="receiptPreview"><img id="receiptImage" alt="קבלת תשלום"><p id="receiptFileName"></p></div>
+    </div>
+    <div class="info-box">נא להעלות צילום ברור של קבלת התשלום מביט.</div>
+    <button id="submitBtn" class="btn primary" disabled>שליחת ההזמנה</button>
+    <button id="backBtn" class="btn secondary">חזרה לעריכה</button>
+    <div class="ok hidden" id="okBox">ההזמנה נשלחה בהצלחה.</div>
+    <div class="error" id="paymentErrorBox"></div>
+  </section>
+</main>
+<script type="module" src="js/booking.js"></script>
+</body>
+</html>
