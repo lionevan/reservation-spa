@@ -1,0 +1,242 @@
+
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הזמנת שולחן | Yasou Taverna</title>
+<link rel="icon" type="image/x-icon" href="../assets/images/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f2ea;--panel:#fffdf8;--text:#1f2520;--muted:#6e746d;--line:#ded7ca;--brand:#206c5b;--brand-dark:#12483c;--gold:#d99f2f;--shadow:0 18px 44px rgba(39,33,23,.12);--radius:18px}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{font-family:"Assistant",system-ui,sans-serif;background:radial-gradient(900px 600px at 100% -10%, rgba(32,108,91,.12), transparent),var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.hero{padding:32px 20px 16px;text-align:center}.hero-logo{width:92px;height:92px;object-fit:contain;background:#173f36;border-radius:22px;padding:12px;display:block;margin:0 auto 10px}
+.hero-subtitle{margin:0;font-weight:800;color:var(--brand-dark);letter-spacing:.06em;font-size:.9rem;opacity:.9}
+.wrap{width:min(640px,100%);margin:0 auto;padding:0 16px 42px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.card h1,.card h2{margin:0 0 6px;font-size:1.6rem}.muted{margin:0 0 18px;color:var(--muted);font-weight:700}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}@media(max-width:620px){.row{grid-template-columns:1fr}}
+.field{display:grid;gap:7px}.field label{font-weight:800;font-size:.92rem}
+.field input,.field select{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 13px;font:inherit;font-weight:600;outline:0;transition:.18s}
+.field input:focus,.field select:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(32,108,91,.12)}
+.legal{margin:14px 0 12px;padding:12px 14px;background:linear-gradient(135deg,rgba(32,108,91,.07),rgba(217,159,47,.09)),#fff;border:1px solid var(--line);border-radius:12px;font-size:.88rem;line-height:1.55;font-weight:600;color:#3a423d}
+.agree{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px dashed var(--line);border-radius:12px;padding:11px 12px;font-weight:700;font-size:.92rem;cursor:pointer;margin-bottom:14px}
+.agree input{width:18px;height:18px;margin-top:2px;accent-color:var(--brand)}
+.btn{width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;padding:13px 16px;font-weight:900;font-size:1.05rem;cursor:pointer;border:1px solid var(--line);background:#fff;transition:.18s;text-decoration:none;text-align:center}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 10px 24px rgba(32,108,91,.22)}
+.btn.primary:hover{transform:translateY(-1px);background:var(--brand-dark)}.btn.primary:disabled{opacity:.55;transform:none;cursor:not-allowed}
+.btn.bit{background:#00a3e0;border-color:#00a3e0;color:#fff;margin:8px 0 12px}.btn.secondary{background:#fff;color:var(--text);margin-top:10px}
+.error{margin-top:12px;background:#fff0ef;border:1px solid #f2c4be;color:#a32f25;padding:10px 12px;border-radius:10px;font-weight:700;font-size:.9rem;display:none}.error.show{display:block}
+.ok{margin-top:14px;background:#e9fbef;border:1px solid #bfe9cb;color:#137a3b;padding:14px;border-radius:12px;font-weight:800;text-align:center;line-height:1.5}
+.hidden{display:none!important}.summary{display:grid;gap:8px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0 14px}
+.summary div{display:flex;justify-content:space-between;gap:12px;font-weight:700}.summary div span:last-child{font-weight:900}.summary .total{border-top:1px dashed var(--line);padding-top:8px;margin-top:2px;font-size:1.05rem;color:var(--brand-dark)}
+.hint{font-size:.88rem;color:var(--muted);font-weight:700;line-height:1.5;margin:6px 0 14px;text-align:center}
+.upload-box{border:2px dashed #c9c1b2;border-radius:14px;background:#fffcf5;padding:16px;text-align:center;transition:.18s}.upload-box.dragover{border-color:var(--brand);background:#eef7f3}
+.upload-label{display:grid;gap:4px;place-items:center;cursor:pointer;font-weight:800}.upload-icon{font-size:28px}.upload-label small{color:var(--muted);font-weight:600}
+.receipt-preview{margin-top:14px;display:grid;gap:8px;place-items:center}.receipt-preview img{max-width:220px;max-height:220px;border-radius:12px;border:1px solid var(--line);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.info-box{margin-top:12px;background:#fff6e4;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.86rem;font-weight:600;color:#5a5f59;text-align:center}
+</style>
+</head>
+<body>
+<header class="hero">
+  <img src="../assets/images/logo.png" alt="YASOU" class="hero-logo" onerror="this.style.display='none'">
+  <p class="hero-subtitle">הזמנת מקום מראש</p>
+</header>
+
+<main class="wrap">
+  <section class="card" id="stepForm">
+    <h1>הזמנת שולחן</h1>
+    <p class="muted">מלאו פרטים ובחרו שעה זמינה.</p>
+
+    <div class="row">
+      <div class="field"><label>שם מלא</label><input id="customerName" autocomplete="name" placeholder="לדוגמה: יוסי כהן"></div>
+      <div class="field"><label>טלפון</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="0501234567"></div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>תאריך</label><input id="date" type="date"></div>
+      <div class="field"><label>סועדים</label>
+        <select id="guests">
+          <option value="2" selected>2</option><option value="1">1</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>בחרו שעה</label>
+        <select id="time">
+          <option value="">בחרו שעה</option>
+          <option value="20:00">20:00</option>
+          <option value="20:05">20:05</option>
+          <option value="20:10">20:10</option>
+          <option value="20:30">20:30</option>
+          <option value="20:35">20:35</option>
+          <option value="21:00">21:00</option>
+          <option value="21:05">21:05</option>
+          <option value="21:10">21:10</option>
+          <option value="21:15">21:15</option>
+        </select>
+      </div>
+      <div class="field"><label>סוג הזמנה</label>
+        <select id="reservationType"><option value="private">הזמנה פרטית</option><option value="group">הזמנה כקבוצה</option></select>
+      </div>
+    </div>
+
+    <div class="legal">בשליחת פיקדון, הלקוח מאשר כי טברנה יאסו ברודוס רשאית לחייב את הפיקדון במלואו במקרה של אי-הגעה, איחור מעל רבע שעה, ביטול או שינוי הזמנה.</div>
+    <label class="agree"><input type="checkbox" id="agree">אני מאשר/ת את תנאי ההזמנה והפיקדון</label>
+    <button id="continueBtn" class="btn primary">המשך לתשלום פיקדון</button>
+    <div class="error" id="errorBox"></div>
+  </section>
+
+  <section class="card hidden" id="stepPayment">
+    <h2>כמעט סיימנו</h2>
+    <div class="summary" id="summaryBox"></div>
+    <a class="btn bit" href="https://www.bitpay.co.il/app/me/672C703C-84B6-5622-19CF-CF25BD06FA6AB39E" target="_blank" rel="noopener">מעבר לתשלום פיקדון ב-Bit</a>
+    <p class="hint">לאחר התשלום בביט, חזור/חזרי לכאן והעלו צילום ברור של קבלת התשלום.</p>
+    <div class="upload-box">
+      <label for="receiptFile" class="upload-label"><span class="upload-icon">☁️</span><strong>העלאת קבלת תשלום</strong><small>קובץ תמונה בלבד: JPG / PNG</small></label>
+      <input id="receiptFile" type="file" accept="image/png,image/jpeg,image/jpg" hidden>
+      <div class="receipt-preview hidden" id="receiptPreview"><img id="receiptImage" alt="קבלת תשלום"><p id="receiptFileName"></p></div>
+    </div>
+    <div class="info-box">נא להעלות צילום ברור של קבלת התשלום מביט.</div>
+    <button id="submitBtn" class="btn primary" disabled>שליחת ההזמנה</button>
+    <button id="backBtn" class="btn secondary">חזרה לעריכה</button>
+    <div class="ok hidden" id="okBox">ההזמנה נשלחה בהצלחה.</div>
+    <div class="error" id="paymentErrorBox"></div>
+  </section>
+</main>
+
+<script>
+// === Yasou Booking - לקוח רואה רק שעות, המתחם מחושב נסתר ===
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbxyO_9GaWnOSnCB2GDcjBp2q6CwF8-nvyhSjjShEWoidM-PLDSV0hHZI09_cNUbkWS2JQ/exec";
+
+const $ = s => document.querySelector(s);
+const customerNameEl = $("#customerName"), phoneEl = $("#phone"), dateEl = $("#date"), guestsEl = $("#guests"), timeEl = $("#time"), reservationTypeEl = $("#reservationType"), agreeEl = $("#agree");
+const continueBtn = $("#continueBtn"), errorBox = $("#errorBox"), stepForm = $("#stepForm"), stepPayment = $("#stepPayment"), summaryBox = $("#summaryBox");
+const receiptFile = $("#receiptFile"), receiptPreview = $("#receiptPreview"), receiptImage = $("#receiptImage"), receiptFileName = $("#receiptFileName"), submitBtn = $("#submitBtn"), backBtn = $("#backBtn"), okBox = $("#okBox"), paymentErrorBox = $("#paymentErrorBox");
+
+const todayIso = new Date().toISOString().slice(0,10);
+dateEl.min = todayIso; dateEl.value = todayIso;
+
+function getZoneByTime(time){
+  if(["20:00","20:05","20:10"].includes(time)) return "covered";
+  if(["20:30","20:35"].includes(time)) return "inside";
+  return "outside";
+}
+
+let selectedBase64 = null;
+
+function showError(msg, box=errorBox){ box.textContent=msg; box.classList.add("show"); }
+function clearError(box=errorBox){ box.textContent=""; box.classList.remove("show"); }
+function validPhone(p){ const d=p.replace(/\D/g,""); return d.length>=9 && d.length<=15; }
+function formatDateIL(iso){ return iso.split("-").reverse().join("."); }
+
+function validateStep1(){
+  clearError();
+  if(customerNameEl.value.trim().length < 2) return "נא להזין שם מלא";
+  if(!validPhone(phoneEl.value.trim())) return "מספר טלפון לא תקין";
+  if(!dateEl.value) return "נא לבחור תאריך";
+  if(new Date(dateEl.value) < new Date(todayIso)) return "לא ניתן לבחור תאריך שעבר";
+  if(!timeEl.value) return "נא לבחור שעה";
+  if(!agreeEl.checked) return "יש לאשר את תנאי ההזמנה והפיקדון";
+  return null;
+}
+
+function buildSummary(){
+  const guests = Number(guestsEl.value);
+  const total = guests * 100;
+  summaryBox.innerHTML = `
+    <div><span>שם</span><span>${customerNameEl.value.trim()}</span></div>
+    <div><span>תאריך</span><span>${formatDateIL(dateEl.value)}</span></div>
+    <div><span>שעה</span><span>${timeEl.value}</span></div>
+    <div><span>סועדים</span><span>${guests}</span></div>
+    <div class="total"><span>סכום פיקדון (${guests} × ₪100)</span><span>₪${total}</span></div>
+  `;
+  return total;
+}
+
+continueBtn.addEventListener("click", ()=>{
+  const err = validateStep1();
+  if(err){ showError(err); return; }
+  buildSummary();
+  stepForm.classList.add("hidden");
+  stepPayment.classList.remove("hidden");
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+
+backBtn.addEventListener("click", ()=>{
+  stepPayment.classList.add("hidden");
+  stepForm.classList.remove("hidden");
+  clearError(paymentErrorBox);
+});
+
+receiptFile.addEventListener("change", async e=>{
+  const file = e.target.files?.[0]; if(!file) return;
+  if(!["image/jpeg","image/png","image/jpg"].includes(file.type)){ showError("ניתן להעלות JPG או PNG בלבד", paymentErrorBox); return; }
+  if(file.size > 6*1024*1024){ showError("קובץ גדול מדי (מקסימום 6MB)", paymentErrorBox); return; }
+  receiptImage.src = URL.createObjectURL(file);
+  receiptFileName.textContent = file.name;
+  receiptPreview.classList.remove("hidden");
+  const base64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(",")[1]); r.onerror=rej; r.readAsDataURL(file); });
+  selectedBase64 = { base64, mime:file.type, name:file.name };
+  submitBtn.disabled = false;
+  clearError(paymentErrorBox);
+});
+
+function uid(){ return crypto.randomUUID?.() || `pub-${Date.now()}-${Math.random().toString(16).slice(2)}`; }
+
+async function sendToSheets(payload){
+  await fetch(SHEETS_URL + "?action=addPublicOrder", {
+    method:"POST", mode:"no-cors",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
+  });
+}
+
+submitBtn.addEventListener("click", async ()=>{
+  clearError(paymentErrorBox);
+  if(!selectedBase64){ showError("נא להעלות צילום קבלה לפני שליחה", paymentErrorBox); return; }
+  submitBtn.disabled = true; submitBtn.textContent = "שולח...";
+  const time = timeEl.value;
+  const zone = getZoneByTime(time);
+  const payload = {
+    id: uid(),
+    customerName: customerNameEl.value.trim(),
+    phone: phoneEl.value.trim(),
+    date: dateEl.value,
+    time: time,
+    guests: Number(guestsEl.value),
+    zone: zone,
+    reservationType: reservationTypeEl.value,
+    tableId: 0,
+    status: "pending_public",
+    notes: `[${zone}] הזמנה מהאתר`,
+    createdAt: new Date().toISOString(),
+    source: "public_site",
+    depositAmount: Number(guestsEl.value)*100,
+    agree: true,
+    receiptName: selectedBase64.name,
+    receiptMime: selectedBase64.mime,
+    receiptBase64: selectedBase64.base64
+  };
+  try{
+    await sendToSheets(payload);
+    okBox.textContent = `ההזמנה נשלחה בהצלחה! תאריך ${formatDateIL(payload.date)} שעה ${payload.time} ל-${payload.guests} סועדים. נאשר בוואטסאפ לאחר בדיקת הקבלה.`;
+    okBox.classList.remove("hidden");
+    submitBtn.textContent = "נשלח ✓";
+  }catch(e){
+    showError("שגיאה בשליחה, נסו שוב", paymentErrorBox);
+    submitBtn.disabled = false; submitBtn.textContent = "שליחת ההזמנה";
+  }
+});
+
+const uploadBox = document.querySelector(".upload-box");
+if(uploadBox){
+  ["dragenter","dragover"].forEach(ev=> uploadBox.addEventListener(ev, e=>{ e.preventDefault(); uploadBox.classList.add("dragover"); }));
+  ["dragleave","drop"].forEach(ev=> uploadBox.addEventListener(ev, e=>{ e.preventDefault(); uploadBox.classList.remove("dragover"); }));
+  uploadBox.addEventListener("drop", e=>{ if(e.dataTransfer.files?.[0]){ receiptFile.files = e.dataTransfer.files; receiptFile.dispatchEvent(new Event("change")); } });
+}
+</script>
+</body>
+</html>
