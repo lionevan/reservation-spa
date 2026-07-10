@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html dir="rtl" lang="he">
 
@@ -886,6 +887,7 @@ button {
 			</nav>
 		</aside>
       <main class="main">
+        ${typeof pendingBanner!=="undefined"?pendingBanner:""}
         <header class="topbar">
 			<div>
 				<h2>סיכום יומי</h2>
@@ -1079,17 +1081,23 @@ button {
       try {
         const data = await fetchJSONP(SHEETS_URL + "?action=getReservations");
         const sheetRes = (data.reservations || []).map(r => ({
-          id:           String(r.id || ""),
-          customerName: String(r.customerName || ""),
-          phone:        String(r.phone || ""),
-          date:         String(r.date || ""),
-          time:         String(r.time || ""),
-          guests:       Number(r.guests) || 0,
-          tableId:      Number(r.tableId) || 0,
-          status:       String(r.status || "active"),
-          notes:        String(r.notes || ""),
-          createdAt:    String(r.createdAt || new Date().toISOString()),
-          fromSheets:   true
+          id:             String(r.id || ""),
+          customerName:     String(r.customerName || ""),
+          phone:            String(r.phone || ""),
+          date:             String(r.date || ""),
+          time:             String(r.time || ""),
+          guests:           Number(r.guests) || 0,
+          tableId:          Number(r.tableId) || 0,
+          status:           String(r.status || "active"),
+          notes:            String(r.notes || ""),
+          createdAt:        String(r.createdAt || new Date().toISOString()),
+          zone:             String(r.zone || ""),
+          reservationType:  String(r.reservationType || "private"),
+          depositAmount:    Number(r.depositAmount) || 0,
+          receiptUrl:       String(r.receiptUrl || ""),
+          agree:            String(r.agree || ""),
+          source:           String(r.source || ""),
+          fromSheets:       true
         }));
         const localIds = new Set(state.reservations.map(r => r.id));
         const newOnes  = sheetRes.filter(r => r.id && !localIds.has(r.id));
@@ -1289,12 +1297,12 @@ function findReservationConflict(reservation) {
 function tableStatus(tableId, date = todayIso()) {
   const items = reservationsForDate(date).filter((reservation) => Number(reservation.tableId) === Number(tableId));
   if (items.some((reservation) => reservation.status === "occupied")) return "occupied";
-  if (items.some((reservation) => reservation.status === "reserved")) return "reserved";
+  if (items.some((reservation) => reservation.status === "reserved" || reservation.status === "pending_public")) return "reserved";
   return "free";
 }
 
 function statusLabel(status) {
-  return { free: "פנוי", reserved: "שמור", occupied: "תפוס", cancelled: "בוטל" }[status] || status;
+  return { free: "פנוי", reserved: "שמור", occupied: "תפוס", cancelled: "בוטל", pending_public: "🔔 חדש מהאתר - ממתין לאישור", pending: "ממתין" }[status] || status;
 }
 
 function formatDate(date) {
@@ -1312,6 +1320,10 @@ function escapeHtml(value) {
 
 function render() {
   const meta = viewMeta[state.activeView];
+
+  const pendingPublic = state.reservations.filter(r=>r.status==="pending_public").length;
+  const pendingBanner = pendingPublic ? `<div style="background:linear-gradient(135deg,#fff6e4,#fff); border:1px solid #e9c88a; border-radius:12px; padding:14px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 6px 18px rgba(0,0,0,.06)"><div><strong>🔔 ${pendingPublic} הזמנות חדשות מהאתר ממתינות לאישור</strong><div style="font-size:.9rem;color:#6e746d;font-weight:600">הלקוחות בחרו רק שעה - המערכת שיבצה אותן נסתר למתחמים לפי לוגיקת המטבח (20:00 מקורה / 20:30 פנימי / 21:00 חיצוני)</div></div><button class="btn primary" onclick="setState({activeView:'reservations', reservationFilter:''})">צפייה ואישור</button></div>` : "";
+
   app.innerHTML = `
     <div class="app-shell">
       <aside class="sidebar">
@@ -1332,6 +1344,7 @@ function render() {
         </nav>
       </aside>
       <main class="main">
+        ${typeof pendingBanner!=="undefined"?pendingBanner:""}
         <header class="topbar">
           <div>
             <h2>${meta.title}</h2>
@@ -1518,10 +1531,14 @@ function formatCompactCurrency(value) {
 }
 
 function renderAreaBreakdown(items) {
-  const labels = { inside: "פנימי", outside: "חיצוני", covered: "מקורה" };
+  const labels = { inside: "פנימי (20:30)", outside: "חיצוני (21:00)", covered: "מקורה (20:00)" };
   const byArea = items.reduce((acc, reservation) => {
-    const table = tableBlueprint.find((item) => item.id === Number(reservation.tableId));
-    const area = table?.zone || "inside";
+    let area = reservation.zone || "";
+    if(!area || !acc.hasOwnProperty(area)){
+      const table = tableBlueprint.find((item) => item.id === Number(reservation.tableId));
+      area = table?.zone || reservation.zone || "inside";
+    }
+    if(!acc.hasOwnProperty(area)) area="inside";
     acc[area] = (acc[area] || 0) + 1;
     return acc;
   }, { inside: 0, outside: 0, covered: 0 });
@@ -1684,21 +1701,27 @@ function renderReservationList(items, showCancelled = false) {
   const list = showCancelled ? items : items.filter((item) => item.status !== "cancelled");
   if (!list.length) return `<div class="empty">אין הזמנות להצגה</div>`;
   return `<div class="list">
-    ${list.map((reservation) => `
-      <article class="reservation-row">
+    ${list.map((reservation) => {
+      const zoneLabel = reservation.zone ? {covered:"מקורה 20:00", inside:"פנימי 20:30", outside:"חיצוני 21:00"}[reservation.zone]||reservation.zone : "";
+      const isPublic = reservation.status === "pending_public" || reservation.source === "public_site";
+      const tableText = Number(reservation.tableId) ? `שולחן ${reservation.tableId}` : `ללא שיבוץ (${zoneLabel||"ממתין"})`;
+      return `
+      <article class="reservation-row" style="${isPublic ? 'border-right:4px solid var(--gold); background:linear-gradient(90deg, rgba(217,159,47,.08), transparent);' : ''}">
         <div>
-          <p class="row-title">${escapeHtml(reservation.customerName)} · שולחן ${reservation.tableId}</p>
-          <div class="row-meta">${formatDate(reservation.date)} בשעה ${reservation.time} · ${reservation.guests} סועדים · ${escapeHtml(reservation.phone)}</div>
+          <p class="row-title">${escapeHtml(reservation.customerName)} · ${tableText} ${isPublic? '🔔' : ''}</p>
+          <div class="row-meta">${formatDate(reservation.date)} בשעה ${reservation.time} · ${reservation.guests} סועדים · ${escapeHtml(reservation.phone)} ${zoneLabel?`· ${zoneLabel}`:""}</div>
+          ${reservation.depositAmount ? `<div class="row-meta">פיקדון: ₪${reservation.depositAmount} ${reservation.receiptUrl?`· <a href="${escapeHtml(reservation.receiptUrl)}" target="_blank" style="color:var(--brand);font-weight:800">צפייה בקבלה</a>`:""}</div>` : ""}
           ${reservation.notes ? `<div class="row-meta">הערות: ${escapeHtml(reservation.notes)}</div>` : ""}
         </div>
         <div class="split-actions">
           <span class="badge ${reservation.status}">${statusLabel(reservation.status)}</span>
           ${reservation.status !== "cancelled" ? `<a class="btn whatsapp" target="_blank" rel="noopener" href="${whatsappUrl(reservation.phone, reservationMessage(reservation))}">WhatsApp</a>` : ""}
+          ${isPublic ? `<button class="btn primary" data-approve-public="${reservation.id}">אשר + שבץ שולחן</button>` : ""}
           <button class="btn" data-edit-reservation="${reservation.id}">עריכה</button>
           ${reservation.status !== "cancelled" ? `<button class="btn danger" data-cancel-reservation="${reservation.id}">ביטול</button>` : ""}
         </div>
       </article>
-    `).join("")}
+    `}).join("")}
   </div>`;
 }
 
@@ -2010,6 +2033,10 @@ function bindEvents() {
     button.addEventListener("click", () => cancelReservation(button.dataset.cancelReservation));
   });
 
+  document.querySelectorAll("[data-approve-public]").forEach((button) => {
+    button.addEventListener("click", () => approvePublicOrder(button.dataset.approvePublic));
+  });
+
   document.querySelectorAll("[data-close-modal]").forEach((element) => {
     element.addEventListener("click", () => setState({ modal: null }));
   });
@@ -2156,6 +2183,34 @@ function cancelReservation(id) {
   render();
   // Sync cancellation to Google Sheets
   syncToSheets("cancelReservation", { id });
+}
+
+function approvePublicOrder(id){
+  const res = state.reservations.find(r=>r.id===id);
+  if(!res) return;
+  // מצא שולחן פנוי לפי zone ומספר סועדים
+  const zone = res.zone || (()=>{
+    const t=res.time||"";
+    if(["20:00","20:05","20:10"].includes(t)) return "covered";
+    if(["20:30","20:35"].includes(t)) return "inside";
+    return "outside";
+  })();
+  const suitable = getTables().filter(t=> t.zone===zone && t.seats >= Number(res.guests||2) )
+    .sort((a,b)=>a.seats-b.seats);
+  let freeTable = null;
+  for(const tbl of suitable){
+    const st = tableStatus(tbl.id, res.date);
+    if(st==="free"){ freeTable = tbl; break; }
+  }
+  if(!freeTable){
+    if(!confirm(`אין שולחן פנוי אוטומטית במתחם ${zone} ל-${res.guests} סועדים בתאריך ${res.date}. לאשר בכל זאת ולשבץ ידנית?`)) return;
+  }
+  const tableId = freeTable ? freeTable.id : (getTables().find(t=>t.zone===zone)?.id || 0);
+  state.reservations = state.reservations.map(r=> r.id===id ? {...r, status:"reserved", tableId, zone } : r);
+  saveState();
+  render();
+  syncToSheets("updatereservationstatus", { id, status:"reserved", tableId, zone });
+  alert(`אושר! שובץ לשולחן ${tableId} במתחם ${zone}. נשלח וואטסאפ ללקוח.`);
 }
 
 function saveSettings(event) {
